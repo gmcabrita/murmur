@@ -1,6 +1,7 @@
 defmodule Murmurex do
   @moduledoc """
-  This module implements all the variants of the non-cryptographic hash Murmur3.
+  This module implements the x86_32, x86_128 and x64_128 variants of the
+  non-cryptographic hash Murmur3.
   """
 
   use Bitwise
