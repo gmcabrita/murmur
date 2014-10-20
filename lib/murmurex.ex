@@ -13,13 +13,14 @@ defmodule Murmurex do
   defmacrop mask_32(x), do: quote do: unquote(x) &&& 0xFFFFFFFF
   defmacrop mask_64(x), do: quote do: unquote(x) &&& 0xFFFFFFFFFFFFFFFF
 
-  @spec hash_x86_32(term) :: pos_integer
-  def hash_x86_32(data) do
-    hash_x86_32(data, 0)
+  def hash(type \\ :x86_32, data, seed \\ 0) do
+   case type do
+     :x86_32  ->  hash_x86_32(data, seed)
+   end
   end
 
   @spec hash_x86_32(binary, pos_integer) :: pos_integer
-  def hash_x86_32(data, seed) when is_binary(data) do
+  defp hash_x86_32(data, seed) when is_binary(data) do
     hash =
       case hash_32_aux(seed, data) do
         {h, []} -> h
@@ -31,7 +32,7 @@ defmodule Murmurex do
   end
 
   @spec hash_x86_32(term, pos_integer) :: pos_integer
-  def hash_x86_32(data, seed) do
+  defp hash_x86_32(data, seed) do
     hash_x86_32(:erlang.term_to_binary(data), seed)
   end
 
