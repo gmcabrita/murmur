@@ -5,7 +5,8 @@ defmodule Murmur.Mixfile do
     [app: :murmur,
      version: "0.1.0",
      elixir: "~> 1.0",
-     deps: deps]
+     deps: deps,
+     test_coverage: [tool: ExCoveralls]]
   end
 
   # Configuration for the OTP application
@@ -25,6 +26,6 @@ defmodule Murmur.Mixfile do
   #
   # Type `mix help deps` for more examples and options
   defp deps do
-    []
+    [{:excoveralls, "~> 0.3", only: :dev}]
   end
 end
