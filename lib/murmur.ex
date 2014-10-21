@@ -50,7 +50,7 @@ defmodule Murmur do
                                {17, @c3_32_128, @c4_32_128},
                                {18, @c4_32_128, @c1_32_128}]
 
-    [h1, h2, h3, h4] = Enum.map hashes, fn ({x, {r, a, b}}) ->
+    hashes = Enum.map hashes, fn ({x, {r, a, b}}) ->
       case x do
         {h, []} -> h ^^^ byte_size(data)
         {h, t}  -> (h ^^^ ((swap_uint32(t) * a)
@@ -59,17 +59,11 @@ defmodule Murmur do
       end
     end
 
-    h1 = (((((h1 + h2) |> mask_32) + h3) |> mask_32) + h4) |> mask_32
-    h2 = (h2 + h1) |> mask_32
-    h3 = (h3 + h1) |> mask_32
-    h4 = (h4 + h1) |> mask_32
-
-    [h1, h2, h3, h4] = Enum.map [h1, h2, h3, h4], fn (x) -> fmix32(x) end
-
-    h1 = (((((h1 + h2) |> mask_32) + h3) |> mask_32) + h4) |> mask_32
-    h2 = (h2 + h1) |> mask_32
-    h3 = (h3 + h1) |> mask_32
-    h4 = (h4 + h1) |> mask_32
+    [h1, h2, h3, h4] =
+      hashes
+      |> hash_32_128_intermix
+      |> Enum.map(&fmix32/1)
+      |> hash_32_128_intermix
 
     h1 <<< 96 ||| h2 <<< 64 ||| h3 <<< 32 ||| h4
   end
@@ -99,6 +93,16 @@ defmodule Murmur do
   end
 
   # x86_128 helper functions
+
+  @spec hash_32_128_intermix([pos_integer]) :: [pos_integer]
+  defp hash_32_128_intermix([h1, h2, h3, h4]) do
+    h1 = (((((h1 + h2) |> mask_32) + h3) |> mask_32) + h4) |> mask_32
+    h2 = (h2 + h1) |> mask_32
+    h3 = (h3 + h1) |> mask_32
+    h4 = (h4 + h1) |> mask_32
+
+    [h1, h2, h3, h4]
+  end
 
   @spec hash_32_128_aux([pos_integer], binary) :: [{pos_integer, [binary]}]
   defp hash_32_128_aux([h1, h2, h3, h4],
