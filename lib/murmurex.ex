@@ -10,10 +10,13 @@ defmodule Murmurex do
   @c2_32  0x1b873593
   @n_32   0xe6546b64
 
+  # since erlang/elixir integers are variable-length we have to guarantee them
+  # to be 32 or 64 bit long
   defmacrop mask_32(x), do: quote do: unquote(x) &&& 0xFFFFFFFF
   defmacrop mask_64(x), do: quote do: unquote(x) &&& 0xFFFFFFFFFFFFFFFF
 
-  def hash(type \\ :x86_32, data, seed \\ 0) do
+  @spec hash(atom, term, pos_integer) :: pos_integer
+  def hash(type, data, seed \\ 0) do
    case type do
      :x86_32  ->  hash_x86_32(data, seed)
    end
