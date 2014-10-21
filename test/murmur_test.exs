@@ -1,6 +1,6 @@
-defmodule MurmurexTest do
+defmodule MurmurTest do
   use ExUnit.Case
-  import Murmurex
+  import Murmur
 
   test "x86_32 empty" do
     assert hash(:x86_32, "") == 0

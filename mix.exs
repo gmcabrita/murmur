@@ -1,8 +1,8 @@
-defmodule Murmurex.Mixfile do
+defmodule Murmur.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :murmurex,
+    [app: :murmur,
      version: "0.1.0",
      elixir: "~> 1.0",
      deps: deps]

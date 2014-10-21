@@ -1,4 +1,4 @@
-defmodule Murmurex do
+defmodule Murmur do
   @moduledoc """
   This module implements the x86_32, x86_128 and x64_128 variants of the
   non-cryptographic hash Murmur3.
