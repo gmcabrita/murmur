@@ -268,58 +268,57 @@ defmodule Murmur do
 
   @spec swap_uint(binary) :: pos_integer
   defp swap_uint(<< v1 :: size(8)-unsigned-little-integer,
-                      v2 :: size(8)-unsigned-little-integer,
-                      v3 :: size(8)-unsigned-little-integer,
-                      v4 :: size(8)-unsigned-little-integer,
-                      v5 :: size(8)-unsigned-little-integer,
-                      v6 :: size(8)-unsigned-little-integer,
-                      v7 :: size(8)-unsigned-little-integer,
-                      v8 :: size(8)-unsigned-little-integer>>) do
+                    v2 :: size(8)-unsigned-little-integer,
+                    v3 :: size(8)-unsigned-little-integer,
+                    v4 :: size(8)-unsigned-little-integer,
+                    v5 :: size(8)-unsigned-little-integer,
+                    v6 :: size(8)-unsigned-little-integer,
+                    v7 :: size(8)-unsigned-little-integer,
+                    v8 :: size(8)-unsigned-little-integer>>) do
     (((((((v8 <<< 56) ^^^ (v7 <<< 48)) ^^^ (v6 <<< 40)) ^^^ (v5 <<< 32)) ^^^ (v4 <<< 24)) ^^^ (v3 <<< 16)) ^^^ (v2 <<< 8)) ^^^ v1
   end
 
   defp swap_uint(<< v1 :: size(8)-unsigned-little-integer,
-                      v2 :: size(8)-unsigned-little-integer,
-                      v3 :: size(8)-unsigned-little-integer,
-                      v4 :: size(8)-unsigned-little-integer,
-                      v5 :: size(8)-unsigned-little-integer,
-                      v6 :: size(8)-unsigned-little-integer,
-                      v7 :: size(8)-unsigned-little-integer>>) do
-    IO.puts "hi"
+                    v2 :: size(8)-unsigned-little-integer,
+                    v3 :: size(8)-unsigned-little-integer,
+                    v4 :: size(8)-unsigned-little-integer,
+                    v5 :: size(8)-unsigned-little-integer,
+                    v6 :: size(8)-unsigned-little-integer,
+                    v7 :: size(8)-unsigned-little-integer>>) do
     ((((((v7 <<< 48) ^^^ (v6 <<< 40)) ^^^ (v5 <<< 32)) ^^^ (v4 <<< 24)) ^^^ (v3 <<< 16)) ^^^ (v2 <<< 8)) ^^^ v1
   end
 
   defp swap_uint(<< v1 :: size(8)-unsigned-little-integer,
-                      v2 :: size(8)-unsigned-little-integer,
-                      v3 :: size(8)-unsigned-little-integer,
-                      v4 :: size(8)-unsigned-little-integer,
-                      v5 :: size(8)-unsigned-little-integer,
-                      v6 :: size(8)-unsigned-little-integer>>) do
+                    v2 :: size(8)-unsigned-little-integer,
+                    v3 :: size(8)-unsigned-little-integer,
+                    v4 :: size(8)-unsigned-little-integer,
+                    v5 :: size(8)-unsigned-little-integer,
+                    v6 :: size(8)-unsigned-little-integer>>) do
     (((((v6 <<< 40) ^^^ (v5 <<< 32)) ^^^ (v4 <<< 24)) ^^^ (v3 <<< 16)) ^^^ (v2 <<< 8)) ^^^ v1
   end
 
   defp swap_uint(<< v1 :: size(8)-unsigned-little-integer,
-                      v2 :: size(8)-unsigned-little-integer,
-                      v3 :: size(8)-unsigned-little-integer,
-                      v4 :: size(8)-unsigned-little-integer,
-                      v5 :: size(8)-unsigned-little-integer>>) do
+                    v2 :: size(8)-unsigned-little-integer,
+                    v3 :: size(8)-unsigned-little-integer,
+                    v4 :: size(8)-unsigned-little-integer,
+                    v5 :: size(8)-unsigned-little-integer>>) do
     ((((v5 <<< 32) ^^^ (v4 <<< 24)) ^^^ (v3 <<< 16)) ^^^ (v2 <<< 8)) ^^^ v1
   end
 
   defp swap_uint(<< v1 :: size(8)-unsigned-little-integer,
-                      v2 :: size(8)-unsigned-little-integer,
-                      v3 :: size(8)-unsigned-little-integer,
-                      v4 :: size(8)-unsigned-little-integer >>) do
+                    v2 :: size(8)-unsigned-little-integer,
+                    v3 :: size(8)-unsigned-little-integer,
+                    v4 :: size(8)-unsigned-little-integer >>) do
     (((v4 <<< 24) ^^^ (v3 <<< 16)) ^^^ (v2 <<< 8)) ^^^ v1
   end
   defp swap_uint(<< v1 :: size(8)-unsigned-little-integer,
-                      v2 :: size(8)-unsigned-little-integer,
-                      v3 :: size(8)-unsigned-little-integer >>) do
+                    v2 :: size(8)-unsigned-little-integer,
+                    v3 :: size(8)-unsigned-little-integer >>) do
     ((v3 <<< 16) ^^^ (v2 <<< 8)) ^^^ v1
   end
 
   defp swap_uint(<< v1 :: size(8)-unsigned-little-integer,
-                      v2 :: size(8)-unsigned-little-integer >>) do
+                    v2 :: size(8)-unsigned-little-integer >>) do
     (v2 <<< 8) ^^^ v1
   end
 
