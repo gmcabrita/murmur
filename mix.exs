@@ -1,30 +1,34 @@
 defmodule Murmur.Mixfile do
   use Mix.Project
 
+  @description """
+  Murmur is a pure Elixir implementation of the non-cryptographic hash Murmur3.
+
+  It aims to implement the x86_32bit, x86_128bit and x64_128bit variants.
+  """
+
   def project do
     [app: :murmur,
      version: "0.1.0",
      elixir: "~> 1.0",
+     description: @description,
      deps: deps,
      test_coverage: [tool: ExCoveralls]]
   end
 
-  # Configuration for the OTP application
-  #
-  # Type `mix help compile.app` for more information
   def application do
-    [applications: [:logger]]
+    [applications: []]
   end
 
-  # Dependencies can be Hex packages:
-  #
-  #   {:mydep, "~> 0.3.0"}
-  #
-  # Or git/path repositories:
-  #
-  #   {:mydep, git: "https://github.com/elixir-lang/mydep.git", tag: "0.1.0"}
-  #
-  # Type `mix help deps` for more examples and options
+  def package do
+    [
+      files: ["lib", "mix.exs", "README.md", "LICENSE"],
+      contributors: ["Gonçalo Cabrita"],
+      licenses: ["MIT"],
+      links: [{"GitHub", "https://github.com/gmcabrita/murmur"}]
+    ]
+  end
+
   defp deps do
     [{:excoveralls, "~> 0.3", only: :dev}]
   end
