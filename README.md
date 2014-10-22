@@ -15,7 +15,7 @@ def deps do
 end
 ```
 
-When you are done, rune `mix deps.get` in your shell to fetch and compile Murmur.
+When you are done, run `mix deps.get` in your shell to fetch and compile Murmur.
 
 
 # Examples
