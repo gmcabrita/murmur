@@ -40,6 +40,10 @@ defmodule MurmurTest do
     assert hash(:x86_32, "b2622f5e1310a0aa14b7f957fe4246fa", 2147368987) == 3297211900
   end
 
+  test "x86_32 erlang term" do
+    assert hash(:x86_32, :test) == 27149028
+  end
+
   # x86_128
 
   test "x86_128 asdfqwer with seed 0" do
@@ -84,6 +88,10 @@ defmodule MurmurTest do
 
   test "x86_128 huge data" do
     assert hash(:x86_128, "b2622f5e1310a0aa14b7f957fe4246fa", 2147368987) == 0x2435044f7ca7f2cf183e80b51f5fd44c
+  end
+
+  test "x86_128 erlang term" do
+    assert hash(:x86_128, :test) == 193365738630794791587273517168070843204
   end
 
 end
