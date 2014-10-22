@@ -26,7 +26,7 @@ defmodule Murmur.Mixfile do
       files: ["lib", "mix.exs", "README.md", "LICENSE"],
       contributors: ["Gonçalo Cabrita"],
       licenses: ["MIT"],
-      links: [{"GitHub", "https://github.com/gmcabrita/murmur"}]
+      links: %{"GitHub" => "https://github.com/gmcabrita/murmur"}
     ]
   end
 
