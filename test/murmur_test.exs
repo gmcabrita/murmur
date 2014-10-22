@@ -94,4 +94,61 @@ defmodule MurmurTest do
     assert hash(:x86_128, :test) == 193365738630794791587273517168070843204
   end
 
+  # x64_128
+
+  test "x64_128 0123456 with seed 1000" do
+    assert hash(:x64_128, "0123456", 1000) == 0x8e6d1cd3e250da7b42f4bd76d21fe539
+  end
+
+  test "x64_128 0123456789 with seed 1000" do
+    assert hash(:x64_128, "0123456789", 1000) == 0x72f1651bb10cc77e401a8156169a5cb8
+  end
+
+  test "x64_128 asdfqwer with seed 0" do
+    assert hash(:x64_128, "asdfqwer", 0) == 0xcb41f064d6d7d367c345e72e8973cd72
+  end
+
+  test "x64_128 empty" do
+    assert hash(:x64_128, "") == 0
+  end
+
+  test "x64_128 empty with seed 1" do
+    assert hash(:x64_128, "", 1) == 0x4610abe56eff5cb551622daa78f83583
+  end
+
+  test "x64_128 default seed arg" do
+    assert hash(:x64_128, "random_stuff") == hash(:x64_128, "random_stuff", 0)
+  end
+
+  test "x64_128 0" do
+    assert hash(:x64_128, "0") == 0x2ac9debed546a3803a8de9e53c875e09
+  end
+
+  test "x64_128 01" do
+    assert hash(:x64_128, "01") == 0x649e4eaa7fc1708ee6945110230f2ad6
+  end
+
+  test "x64_128 012" do
+    assert hash(:x64_128, "012") == 0xce68f60d7c353bdb00364cd5936bf18a
+  end
+
+  test "x64_128 0123" do
+    assert hash(:x64_128, "0123") == 0x0f95757ce7f38254b4c67c9e6f12ab4b
+  end
+
+  test "x64_128 01234" do
+    assert hash(:x64_128, "01234") == 0x0f04e459497f3fc1eccc6223a28dd613
+  end
+
+  test "x64_128 012345" do
+    assert hash(:x64_128, "012345") == 0x88c0a92586be0a2781062d6137728244
+  end
+
+  test "x64_128 huge data" do
+    assert hash(:x64_128, "b2622f5e1310a0aa14b7f957fe4246fa", 2147368987) == 0xf982047579beb692f57653a0620f950b
+  end
+
+  test "x64_128 erlang term" do
+    assert hash(:x64_128, :test) == 261489243741046697889268700172115018588
+  end
 end
