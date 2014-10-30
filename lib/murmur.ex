@@ -51,18 +51,18 @@ defmodule Murmur do
 
   @spec hash_x64_128(binary, pos_integer) :: pos_integer
   defp hash_x64_128(data, seed) when is_binary(data) do
-    hashes = hash_64_128_aux([seed, seed], data)
-    hashes = Enum.zip hashes, [{31, @c1_64_128, @c2_64_128},
-                               {33, @c2_64_128, @c1_64_128}]
-
-    hashes = Enum.map hashes, fn ({x, {r, a, b}}) ->
-      case x do
-        {h, []} -> h ^^^ byte_size(data)
-        {h, t}  -> (h ^^^ ((swap_uint(t) * a)
-                          |> mask_64 |> rotl64(r) |> Kernel.*(b) |> mask_64))
-                    ^^^ byte_size(data)
-      end
-    end
+    hashes =
+      hash_64_128_aux([seed, seed], data)
+      |> Enum.zip([{31, @c1_64_128, @c2_64_128},
+                   {33, @c2_64_128, @c1_64_128}])
+      |>  Enum.map(fn ({x, {r, a, b}}) ->
+            case x do
+              {h, []} -> h ^^^ byte_size(data)
+              {h, t}  -> (h ^^^ ((swap_uint(t) * a)
+                                  |> mask_64 |> rotl64(r) |> Kernel.*(b) |> mask_64))
+                          ^^^ byte_size(data)
+            end
+          end)
 
     [h1, h2] =
       hashes
@@ -82,20 +82,20 @@ defmodule Murmur do
 
   @spec hash_x86_128(binary, pos_integer) :: pos_integer
   defp hash_x86_128(data, seed) when is_binary(data) do
-    hashes = hash_32_128_aux([seed, seed, seed, seed], data)
-    hashes = Enum.zip hashes, [{15, @c1_32_128, @c2_32_128},
-                               {16, @c2_32_128, @c3_32_128},
-                               {17, @c3_32_128, @c4_32_128},
-                               {18, @c4_32_128, @c1_32_128}]
-
-    hashes = Enum.map hashes, fn ({x, {r, a, b}}) ->
-      case x do
-        {h, []} -> h ^^^ byte_size(data)
-        {h, t}  -> (h ^^^ ((swap_uint(t) * a)
-                          |> mask_32 |> rotl32(r) |> Kernel.*(b) |> mask_32))
-                    ^^^ byte_size(data)
-      end
-    end
+    hashes =
+      hash_32_128_aux([seed, seed, seed, seed], data)
+      |> Enum.zip([{15, @c1_32_128, @c2_32_128},
+                   {16, @c2_32_128, @c3_32_128},
+                   {17, @c3_32_128, @c4_32_128},
+                   {18, @c4_32_128, @c1_32_128}])
+      |>  Enum.map(fn ({x, {r, a, b}}) ->
+            case x do
+              {h, []} -> h ^^^ byte_size(data)
+              {h, t}  -> (h ^^^ ((swap_uint(t) * a)
+                                  |> mask_32 |> rotl32(r) |> Kernel.*(b) |> mask_32))
+                          ^^^ byte_size(data)
+            end
+          end)
 
     [h1, h2, h3, h4] =
       hashes
