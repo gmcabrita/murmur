@@ -1,4 +1,4 @@
-Murmur [![Build Status](https://travis-ci.org/gmcabrita/murmur.png?branch=master)](https://travis-ci.org/gmcabrita/murmur) [![Coverage Status](https://img.shields.io/coveralls/gmcabrita/murmur.svg)](https://coveralls.io/r/gmcabrita/murmur?branch=master) [![Hex Version](http://img.shields.io/hexpm/v/murmur.svg)](https://hex.pm/packages/murmur)
+Murmur [![Build Status](https://img.shields.io/travis/gmcabrita/murmur.svg?style=flat)](https://travis-ci.org/gmcabrita/murmur) [![Coverage Status](https://img.shields.io/coveralls/gmcabrita/murmur.svg?style=flat)](https://coveralls.io/r/gmcabrita/murmur?branch=master) [![License](http://img.shields.io/hexpm/l/murmur.svg?style=flat)](https://github.com/gmcabrita/murmur/blob/master/LICENSE) [![Hex Version](http://img.shields.io/hexpm/v/murmur.svg?style=flat)](https://hex.pm/packages/murmur)
 ========
 
 Murmur is a pure Elixir implementation of the non-cryptographic hash [Murmur3](https://code.google.com/p/smhasher/wiki/MurmurHash3).
