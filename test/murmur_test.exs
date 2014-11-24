@@ -1,5 +1,6 @@
 defmodule MurmurTest do
   use ExUnit.Case
+  doctest Murmur
   import Murmur
 
   #x86_32
