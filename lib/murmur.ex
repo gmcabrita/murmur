@@ -1,7 +1,19 @@
 defmodule Murmur do
-  @moduledoc """
+  @moduledoc ~S"""
   This module implements the x86_32, x86_128 and x64_128 variants of the
   non-cryptographic hash Murmur3.
+
+  ## Examples
+
+    iex> Murmur.hash(:x86_32, "b2622f5e1310a0aa14b7f957fe4246fa", 2147368987)
+    3297211900
+
+    iex> Murmur.hash(:x86_128, "some random data")
+    5586633072055552000169173700229798482
+
+    iex> Murmur.hash(:x64_128, [:yes, :you, :can, :use, :any, :erlang, :term!])
+    300414073828138369336317731503972665325
+
   """
 
   use Bitwise
@@ -31,22 +43,12 @@ defmodule Murmur do
   defmacrop mask_32(x), do: quote do: unquote(x) &&& 0xFFFFFFFF
   defmacrop mask_64(x), do: quote do: unquote(x) &&& 0xFFFFFFFFFFFFFFFF
 
-  @doc ~S"""
+  @doc """
   Returns the hashed erlang term `data` using hash variant `type` and an
   optional `seed` which defaults to `0`.
 
   Acceptable hash variants are:
   `:x86_32`, `:x86_128` and `:x64_128`
-
-  ## Examples
-
-    iex> Murmur.hash(:x86_32, "b2622f5e1310a0aa14b7f957fe4246fa", 2147368987)
-    3297211900
-    iex> Murmur.hash(:x86_128, "some random data")
-    5586633072055552000169173700229798482
-    iex> Murmur.hash(:x64_128, [:yes, :you, :can, :use, :any, :erlang, :term!])
-    300414073828138369336317731503972665325
-
   """
   @spec hash(:x86_32 | :x86_128 | :x64_128, any, non_neg_integer) :: non_neg_integer
   def hash(type, data, seed \\ 0) do
