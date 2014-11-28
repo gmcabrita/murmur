@@ -5,14 +5,14 @@ defmodule Murmur do
 
   ## Examples
 
-    iex> Murmur.hash(:x86_32, "b2622f5e1310a0aa14b7f957fe4246fa", 2147368987)
-    3297211900
+      iex> Murmur.hash(:x86_32, "b2622f5e1310a0aa14b7f957fe4246fa", 2147368987)
+      3297211900
 
-    iex> Murmur.hash(:x86_128, "some random data")
-    5586633072055552000169173700229798482
+      iex> Murmur.hash(:x86_128, "some random data")
+      5586633072055552000169173700229798482
 
-    iex> Murmur.hash(:x64_128, [:yes, :you, :can, :use, :any, :erlang, :term!])
-    300414073828138369336317731503972665325
+      iex> Murmur.hash(:x64_128, [:yes, :you, :can, :use, :any, :erlang, :term!])
+      300414073828138369336317731503972665325
 
   """
 
