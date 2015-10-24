@@ -34,6 +34,7 @@ defmodule Murmur.Mixfile do
     [{:excoveralls, "~> 0.3", only: :dev},
      {:earmark, "~> 0.1", only: :dev},
      {:ex_doc, "~> 0.10", only: :dev},
+     {:dogma, "~> 0.0", only: :dev},
      {:inch_ex, only: :docs}
     ]
   end
