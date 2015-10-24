@@ -88,25 +88,25 @@ defmodule Murmur do
   def hash_x86_128(data, seed \\ 0)
   def hash_x86_128(data, seed) when is_binary(data) do
     hashes =
-    hash_32_128_aux([seed, seed, seed, seed], data)
-    |> Enum.zip([{15, @c1_32_128, @c2_32_128},
-                 {16, @c2_32_128, @c3_32_128},
-                 {17, @c3_32_128, @c4_32_128},
-                 {18, @c4_32_128, @c1_32_128}])
-    |> Enum.map(fn ({x, {r, a, b}}) ->
-                  case x do
-                    {h, []} -> h ^^^ byte_size(data)
-                    {h, t}  -> (h ^^^ ((swap_uint(t) * a)
-                                       |> mask_32 |> rotl32(r) |> Kernel.*(b) |> mask_32))
-                               ^^^ byte_size(data)
-                  end
-                end)
+      hash_32_128_aux([seed, seed, seed, seed], data)
+      |> Enum.zip([{15, @c1_32_128, @c2_32_128},
+                   {16, @c2_32_128, @c3_32_128},
+                   {17, @c3_32_128, @c4_32_128},
+                   {18, @c4_32_128, @c1_32_128}])
+      |> Enum.map(fn ({x, {r, a, b}}) ->
+                    case x do
+                      {h, []} -> h ^^^ byte_size(data)
+                      {h, t}  -> (h ^^^ ((swap_uint(t) * a)
+                                         |> mask_32 |> rotl32(r) |> Kernel.*(b) |> mask_32))
+                                 ^^^ byte_size(data)
+                    end
+                  end)
 
     [h1, h2, h3, h4] =
-    hashes
-    |> hash_32_128_intermix
-    |> Enum.map(&fmix32/1)
-    |> hash_32_128_intermix
+      hashes
+      |> hash_32_128_intermix
+      |> Enum.map(&fmix32/1)
+      |> hash_32_128_intermix
 
     h1 <<< 96 ||| h2 <<< 64 ||| h3 <<< 32 ||| h4
   end
@@ -125,11 +125,11 @@ defmodule Murmur do
   def hash_x86_32(data, seed \\ 0)
   def hash_x86_32(data, seed) when is_binary(data) do
     hash =
-    case hash_32_aux(seed, data) do
-      {h, []} -> h
-      {h, t}  -> h ^^^ ((swap_uint(t) * @c1_32)
-                        |> mask_32 |> rotl32(15) |> Kernel.*(@c2_32) |> mask_32)
-    end
+      case hash_32_aux(seed, data) do
+        {h, []} -> h
+        {h, t}  -> h ^^^ ((swap_uint(t) * @c1_32)
+                          |> mask_32 |> rotl32(15) |> Kernel.*(@c2_32) |> mask_32)
+      end
 
     fmix32(hash ^^^ byte_size(data))
   end
@@ -166,7 +166,7 @@ defmodule Murmur do
     [{h1, t1}, {h2, t}]
   end
 
-  defp hash_64_128_aux([h1, h2], <<t :: binary>>) do
+  defp hash_64_128_aux([h1, h2], t) when is_binary(t) do
     [{h1, t}, {h2, []}]
   end
 
@@ -228,7 +228,7 @@ defmodule Murmur do
     [{h1, t1}, {h2, t2}, {h3, []}, {h4, []}]
   end
 
-  defp hash_32_128_aux([h1, h2, h3, h4], <<t1 :: binary>>) do
+  defp hash_32_128_aux([h1, h2, h3, h4], t1) when is_binary(t1) do
     [{h1, t1}, {h2, []}, {h3, []}, {h4, []}]
   end
 
