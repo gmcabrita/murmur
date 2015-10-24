@@ -16,10 +16,10 @@ defmodule Murmur.Mixfile do
       package: package,
       deps: deps,
       aliases: [
-        dialyze: "dialyze
-                    --unmatched-returns
-                    --error-handling
-                    --race-conditions
+        dialyze: "dialyze \
+                    --unmatched-returns \
+                    --error-handling \
+                    --race-conditions \
                     --underspecs"
       ],
       test_coverage: [tool: ExCoveralls]
@@ -41,11 +41,12 @@ defmodule Murmur.Mixfile do
 
   defp deps do
     [
-      {:excoveralls, "~> 0.3", only: :dev},
-      {:earmark, "~> 0.1", only: :dev},
-      {:ex_doc, "~> 0.10", only: :dev},
-      {:dogma, "~> 0.0", only: :dev},
-      {:inch_ex, only: :docs}
+      {:excoveralls, "~> 0.3", only: :docs},
+      {:earmark, "~> 0.1", only: :docs},
+      {:ex_doc, "~> 0.10", only: :docs},
+      {:inch_ex, only: :docs},
+      {:dialyze, "~> 0.2.0", only: [:dev, :test]},
+      {:dogma, "~> 0.0", only: [:dev, :test]}
     ]
   end
 
