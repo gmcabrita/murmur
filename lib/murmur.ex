@@ -5,13 +5,13 @@ defmodule Murmur do
 
   ## Examples
 
-      iex> Murmur.hash(:x86_32, "b2622f5e1310a0aa14b7f957fe4246fa", 2147368987)
+      iex> Murmur.hash_x86_32("b2622f5e1310a0aa14b7f957fe4246fa", 2147368987)
       3297211900
 
-      iex> Murmur.hash(:x86_128, "some random data")
+      iex> Murmur.hash_x86_128("some random data")
       5586633072055552000169173700229798482
 
-      iex> Murmur.hash(:x64_128, [:yes, :you, :can, :use, :any, :erlang, :term!])
+      iex> Murmur.hash_x64_128([:yes, :you, :can, :use, :any, :erlang, :term!])
       300414073828138369336317731503972665325
 
   """
@@ -47,52 +47,46 @@ defmodule Murmur do
   Returns the hashed erlang term `data` using hash variant `type` and an
   optional `seed` which defaults to `0`.
 
-  Acceptable hash variants are:
-  `:x86_32`, `:x86_128` and `:x64_128`
+  This function uses the x64 128bit variant.
   """
-  @spec hash(:x86_32 | :x86_128 | :x64_128, any, non_neg_integer) :: non_neg_integer
-  def hash(type, data, seed \\ 0) do
-    case type do
-      :x86_32  -> hash_x86_32(data, seed)
-      :x86_128 -> hash_x86_128(data, seed)
-      :x64_128 -> hash_x64_128(data, seed)
-    end
-  end
-
-  # x64_128
-
   @spec hash_x64_128(binary | term, non_neg_integer) :: non_neg_integer
-  defp hash_x64_128(data, seed) when is_binary(data) do
+  def hash_x64_128(data, seed \\ 0)
+  def hash_x64_128(data, seed) when is_binary(data) do
     hashes =
-    hash_64_128_aux([seed, seed], data)
-    |> Enum.zip([{31, @c1_64_128, @c2_64_128},
-                 {33, @c2_64_128, @c1_64_128}])
-    |> Enum.map(fn ({x, {r, a, b}}) ->
-                  case x do
-                    {h, []} -> h ^^^ byte_size(data)
-                    {h, t}  -> (h ^^^ ((swap_uint(t) * a)
-                                       |> mask_64 |> rotl64(r) |> Kernel.*(b) |> mask_64))
-                               ^^^ byte_size(data)
-                  end
-                end)
+      hash_64_128_aux([seed, seed], data)
+      |> Enum.zip([{31, @c1_64_128, @c2_64_128},
+                   {33, @c2_64_128, @c1_64_128}])
+      |> Enum.map(fn ({x, {r, a, b}}) ->
+                    case x do
+                      {h, []} -> h ^^^ byte_size(data)
+                      {h, t}  -> (h ^^^ ((swap_uint(t) * a)
+                                         |> mask_64 |> rotl64(r) |> Kernel.*(b) |> mask_64))
+                                 ^^^ byte_size(data)
+                    end
+                  end)
 
     [h1, h2] =
-    hashes
-    |> hash_64_128_intermix
-    |> Enum.map(&fmix64/1)
-    |> hash_64_128_intermix
+      hashes
+      |> hash_64_128_intermix
+      |> Enum.map(&fmix64/1)
+      |> hash_64_128_intermix
 
     h1 <<< 64 ||| h2
   end
 
-  defp hash_x64_128(data, seed) do
+  def hash_x64_128(data, seed) do
     hash_x64_128(:erlang.term_to_binary(data), seed)
   end
 
-  # x86_128
+  @doc """
+  Returns the hashed erlang term `data` using hash variant `type` and an
+  optional `seed` which defaults to `0`.
 
+  This function uses the x86 128bit variant.
+  """
   @spec hash_x86_128(binary | term, non_neg_integer) :: non_neg_integer
-  defp hash_x86_128(data, seed) when is_binary(data) do
+  def hash_x86_128(data, seed \\ 0)
+  def hash_x86_128(data, seed) when is_binary(data) do
     hashes =
     hash_32_128_aux([seed, seed, seed, seed], data)
     |> Enum.zip([{15, @c1_32_128, @c2_32_128},
@@ -117,14 +111,19 @@ defmodule Murmur do
     h1 <<< 96 ||| h2 <<< 64 ||| h3 <<< 32 ||| h4
   end
 
-  defp hash_x86_128(data, seed) do
+  def hash_x86_128(data, seed) do
     hash_x86_128(:erlang.term_to_binary(data), seed)
   end
 
-  # x86_32
+  @doc """
+  Returns the hashed erlang term `data` using hash variant `type` and an
+  optional `seed` which defaults to `0`.
 
+  This function uses the x86 32bit variant.
+  """
   @spec hash_x86_32(binary | term, non_neg_integer) :: non_neg_integer
-  defp hash_x86_32(data, seed) when is_binary(data) do
+  def hash_x86_32(data, seed \\ 0)
+  def hash_x86_32(data, seed) when is_binary(data) do
     hash =
     case hash_32_aux(seed, data) do
       {h, []} -> h
@@ -135,7 +134,7 @@ defmodule Murmur do
     fmix32(hash ^^^ byte_size(data))
   end
 
-  defp hash_x86_32(data, seed) do
+  def hash_x86_32(data, seed) do
     hash_x86_32(:erlang.term_to_binary(data), seed)
   end
 
