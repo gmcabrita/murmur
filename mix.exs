@@ -45,8 +45,7 @@ defmodule Murmur.Mixfile do
       {:earmark, "~> 0.1", only: :docs},
       {:ex_doc, "~> 0.10", only: :docs},
       {:inch_ex, only: :docs},
-      {:dialyze, "~> 0.2.0", only: [:dev, :test]},
-      {:dogma, "~> 0.0", only: [:dev, :test]}
+      {:dialyze, "~> 0.2.0", only: [:dev, :test]}
     ]
   end
 
