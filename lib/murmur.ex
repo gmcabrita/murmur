@@ -63,7 +63,10 @@ defmodule Murmur do
           case x do
             {h, []} -> h ^^^ byte_size(data)
             {h, t}  -> (h ^^^ ((swap_uint(t) * a)
-                               |> mask_64 |> rotl64(r) |> Kernel.*(b) |> mask_64))
+                               |> mask_64
+                               |> rotl64(r)
+                               |> Kernel.*(b)
+                               |> mask_64))
                        ^^^ byte_size(data)
           end
         end)
@@ -104,7 +107,10 @@ defmodule Murmur do
           case x do
             {h, []} -> h ^^^ byte_size(data)
             {h, t}  -> (h ^^^ ((swap_uint(t) * a)
-                               |> mask_32 |> rotl32(r) |> Kernel.*(b) |> mask_32))
+                               |> mask_32
+                               |> rotl32(r)
+                               |> Kernel.*(b)
+                               |> mask_32))
                        ^^^ byte_size(data)
           end
         end)
@@ -136,7 +142,10 @@ defmodule Murmur do
       case hash_32_aux(seed, data) do
         {h, []} -> h
         {h, t}  -> h ^^^ ((swap_uint(t) * @c1_32)
-                          |> mask_32 |> rotl32(15) |> Kernel.*(@c2_32) |> mask_32)
+                          |> mask_32
+                          |> rotl32(15)
+                          |> Kernel.*(@c2_32)
+                          |> mask_32)
       end
 
     fmix32(hash ^^^ byte_size(data))
@@ -156,16 +165,44 @@ defmodule Murmur do
     [h1, h2]
   end
 
+  @spec k_64_op(non_neg_integer,
+                non_neg_integer,
+                non_neg_integer,
+                non_neg_integer) :: non_neg_integer
+  defp k_64_op(k, c1, rotl, c2) do
+    k * c1
+    |> mask_64
+    |> rotl64(rotl)
+    |> mask_64
+    |> Kernel.*(c2)
+    |> mask_64
+  end
+
+  @spec h_64_op(non_neg_integer,
+                non_neg_integer,
+                non_neg_integer,
+                non_neg_integer,
+                non_neg_integer,
+                non_neg_integer) :: non_neg_integer
+  defp h_64_op(h1, k, rotl, h2, const, n) do
+    h1 ^^^ k
+    |> rotl64(rotl)
+    |> Kernel.+(h2)
+    |> Kernel.*(const)
+    |> Kernel.+(n)
+    |> mask_64
+  end
+
   @spec hash_64_128_aux([non_neg_integer], binary) :: [{non_neg_integer, [binary]}]
   defp hash_64_128_aux([h1, h2],
                        <<k1 :: size(16)-unsigned-little-integer-unit(4),
                          k2 :: size(16)-unsigned-little-integer-unit(4),
                          t  :: binary>>) do
-    k1 = mask_64(k1 * @c1_64_128) |> rotl64(31) |> mask_64 |> Kernel.*(@c2_64_128) |> mask_64
-    h1 = (((rotl64(h1 ^^^ k1, 27) + h2) * 5) + @n1_64_128) |> mask_64
+    k1 = k_64_op(k1, @c1_64_128, 31, @c2_64_128)
+    h1 = h_64_op(h1, k1, 27, h2, 5, @n1_64_128)
 
-    k2 = mask_64(k2 * @c2_64_128) |> rotl64(33) |> mask_64 |> Kernel.*(@c1_64_128) |> mask_64
-    h2 = (((rotl64(h2 ^^^ k2, 31) + h1) * 5) + @n2_64_128) |> mask_64
+    k2 = k_64_op(k2, @c2_64_128, 33, @c1_64_128)
+    h2 = h_64_op(h2, k2, 31, h1, 5, @n2_64_128)
 
     hash_64_128_aux([h1, h2], t)
   end
@@ -186,12 +223,47 @@ defmodule Murmur do
 
   @spec hash_32_128_intermix([non_neg_integer]) :: [non_neg_integer]
   defp hash_32_128_intermix([h1, h2, h3, h4]) do
-    h1 = (((((h1 + h2) |> mask_32) + h3) |> mask_32) + h4) |> mask_32
+    h1 =
+      h1 + h2
+      |> mask_32
+      |> Kernel.+(h3)
+      |> mask_32
+      |> Kernel.+(h4)
+      |> mask_32
+
     h2 = (h2 + h1) |> mask_32
     h3 = (h3 + h1) |> mask_32
     h4 = (h4 + h1) |> mask_32
 
     [h1, h2, h3, h4]
+  end
+
+  @spec k_32_op(non_neg_integer,
+                non_neg_integer,
+                non_neg_integer,
+                non_neg_integer) :: non_neg_integer
+  defp k_32_op(k, c1, rotl, c2) do
+    k * c1
+    |> mask_32
+    |> rotl32(rotl)
+    |> mask_32
+    |> Kernel.*(c2)
+    |> mask_32
+  end
+
+  @spec h_32_op(non_neg_integer,
+                non_neg_integer,
+                non_neg_integer,
+                non_neg_integer,
+                non_neg_integer,
+                non_neg_integer) :: non_neg_integer
+  defp h_32_op(h1, k, rotl, h2, const, n) do
+    h1 ^^^ k
+    |> rotl32(rotl)
+    |> Kernel.+(h2)
+    |> Kernel.*(const)
+    |> Kernel.+(n)
+    |> mask_32
   end
 
   @spec hash_32_128_aux([non_neg_integer], binary) :: [{non_neg_integer, [binary]}]
@@ -201,17 +273,17 @@ defmodule Murmur do
                          k3 :: size(8)-unsigned-little-integer-unit(4),
                          k4 :: size(8)-unsigned-little-integer-unit(4),
                          t :: binary>>) do
-    k1 = mask_32(k1 * @c1_32_128) |> rotl32(15) |> mask_32 |> Kernel.*(@c2_32_128) |> mask_32
-    h1 = (((rotl32(h1 ^^^ k1, 19) + h2) * 5) + @n1_32_128) |> mask_32
+    k1 = k_32_op(k1, @c1_32_128, 15, @c2_32_128)
+    h1 = h_32_op(h1, k1, 19, h2, 5, @n1_32_128)
 
-    k2 = mask_32(k2 * @c2_32_128) |> rotl32(16) |> mask_32 |> Kernel.*(@c3_32_128) |> mask_32
-    h2 = (((rotl32(h2 ^^^ k2, 17) + h3) * 5) + @n2_32_128) |> mask_32
+    k2 = k_32_op(k2, @c2_32_128, 16, @c3_32_128)
+    h2 = h_32_op(h2, k2, 17, h3, 5, @n2_32_128)
 
-    k3 = mask_32(k3 * @c3_32_128) |> rotl32(17) |> mask_32 |> Kernel.*(@c4_32_128) |> mask_32
-    h3 = (((rotl32(h3 ^^^ k3, 15) + h4) * 5) + @n3_32_128) |> mask_32
+    k3 = k_32_op(k3, @c3_32_128, 17, @c4_32_128)
+    h3 = h_32_op(h3, k3, 15, h4, 5, @n3_32_128)
 
-    k4 = mask_32(k4 * @c4_32_128) |> rotl32(18) |> mask_32 |> Kernel.*(@c1_32_128) |> mask_32
-    h4 = (((rotl32(h4 ^^^ k4, 13) + h1) * 5) + @n4_32_128) |> mask_32
+    k4 = k_32_op(k4, @c4_32_128, 18, @c1_32_128)
+    h4 = h_32_op(h4, k4, 13, h1, 5, @n4_32_128)
 
     hash_32_128_aux([h1, h2, h3, h4], t)
   end
@@ -248,8 +320,14 @@ defmodule Murmur do
 
   @spec hash_32_aux(non_neg_integer, binary) :: {non_neg_integer, [binary] | binary}
   defp hash_32_aux(h0, <<k :: size(8)-unsigned-little-integer-unit(4), t :: binary>>) do
-    k1 = mask_32(k * @c1_32) |> rotl32(15) |> mask_32 |> Kernel.*(@c2_32) |> mask_32
-    (rotl32(h0 ^^^ k1, 13) * 5 + @n_32) |> mask_32 |> hash_32_aux(t)
+    k1 = k_32_op(k, @c1_32, 15, @c2_32)
+
+    h0 ^^^ k1
+    |> rotl32(13)
+    |> Kernel.*(5)
+    |> Kernel.+(@n_32)
+    |> mask_32
+    |> hash_32_aux(t)
   end
 
   defp hash_32_aux(h, t) when byte_size(t) > 0, do: {h, t}
@@ -260,7 +338,11 @@ defmodule Murmur do
   @spec fmix32(non_neg_integer) :: non_neg_integer
   defp fmix32(h0) do
     xorbsr(h0, 16) * 0x85ebca6b
-    |> mask_32 |> xorbsr(13) |> Kernel.*(0xc2b2ae35) |> mask_32 |> xorbsr(16)
+    |> mask_32
+    |> xorbsr(13)
+    |> Kernel.*(0xc2b2ae35)
+    |> mask_32
+    |> xorbsr(16)
   end
 
   @spec rotl32(non_neg_integer, non_neg_integer) :: non_neg_integer
@@ -271,7 +353,11 @@ defmodule Murmur do
   @spec fmix64(non_neg_integer) :: non_neg_integer
   defp fmix64(h0) do
     xorbsr(h0, 33) * 0xff51afd7ed558ccd
-    |> mask_64 |> xorbsr(33) |> Kernel.*(0xc4ceb9fe1a85ec53) |> mask_64 |> xorbsr(33)
+    |> mask_64
+    |> xorbsr(33)
+    |> Kernel.*(0xc4ceb9fe1a85ec53)
+    |> mask_64
+    |> xorbsr(33)
   end
 
   @spec rotl64(non_neg_integer, non_neg_integer) :: non_neg_integer
