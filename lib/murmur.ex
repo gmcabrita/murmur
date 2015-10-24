@@ -44,8 +44,7 @@ defmodule Murmur do
   defmacrop mask_64(x), do: quote do: unquote(x) &&& 0xFFFFFFFFFFFFFFFF
 
   @doc """
-  Returns the hashed erlang term `data` using hash variant `type` and an
-  optional `seed` which defaults to `0`.
+  Returns the hashed erlang term `data` using an optional `seed` which defaults to `0`.
 
   This function uses the x64 128bit variant.
   """
@@ -86,8 +85,7 @@ defmodule Murmur do
   end
 
   @doc """
-  Returns the hashed erlang term `data` using hash variant `type` and an
-  optional `seed` which defaults to `0`.
+  Returns the hashed erlang term `data` using an optional `seed` which defaults to `0`.
 
   This function uses the x86 128bit variant.
   """
@@ -130,8 +128,7 @@ defmodule Murmur do
   end
 
   @doc """
-  Returns the hashed erlang term `data` using hash variant `type` and an
-  optional `seed` which defaults to `0`.
+  Returns the hashed erlang term `data` using an optional `seed` which defaults to `0`.
 
   This function uses the x86 32bit variant.
   """
