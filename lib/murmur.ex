@@ -363,27 +363,66 @@ defmodule Murmur do
   # generic helper functions
 
   @spec swap_uint(binary) :: non_neg_integer
-  defp swap_uint(""), do: 0
-
-  # generate swap_uint bitstring pattern matchings at compile time
-  args = [:v1, :v2, :v3, :v4, :v5, :v6, :v7, :v8]
-  quoted_vars = Enum.map(args, fn var -> quote do: unquote(Macro.var(var, __MODULE__)) end)
-  quoted_args = Enum.map(quoted_vars, fn var -> quote do: unquote(var) :: size(8)-unsigned-little-integer end)
-
-  for i <- 1..8 do
-    defp swap_uint(<< unquote_splicing(Enum.take(quoted_args, i)) >>) do
-      unquote(
-        Stream.take(quoted_vars, i)
-        |> Enum.reverse
-        |> Stream.with_index
-        |> Enum.reduce(0,
-          fn ({v, count}, acc) ->
-            quote do
-              unquote(acc) ^^^ (unquote(v) <<< (8 * (unquote(i) - 1 - unquote(count))))
-            end
-          end))
-    end
+  defp swap_uint(<<v1 :: size(8)-unsigned-little-integer,
+                   v2 :: size(8)-unsigned-little-integer,
+                   v3 :: size(8)-unsigned-little-integer,
+                   v4 :: size(8)-unsigned-little-integer,
+                   v5 :: size(8)-unsigned-little-integer,
+                   v6 :: size(8)-unsigned-little-integer,
+                   v7 :: size(8)-unsigned-little-integer,
+                   v8 :: size(8)-unsigned-little-integer>>) do
+    (((((((v8 <<< 56) ^^^ (v7 <<< 48)) ^^^ (v6 <<< 40)) ^^^ (v5 <<< 32)) ^^^ (v4 <<< 24)) ^^^ (v3 <<< 16)) ^^^ (v2 <<< 8)) ^^^ v1
   end
+
+  defp swap_uint(<<v1 :: size(8)-unsigned-little-integer,
+                   v2 :: size(8)-unsigned-little-integer,
+                   v3 :: size(8)-unsigned-little-integer,
+                   v4 :: size(8)-unsigned-little-integer,
+                   v5 :: size(8)-unsigned-little-integer,
+                   v6 :: size(8)-unsigned-little-integer,
+                   v7 :: size(8)-unsigned-little-integer>>) do
+    ((((((v7 <<< 48) ^^^ (v6 <<< 40)) ^^^ (v5 <<< 32)) ^^^ (v4 <<< 24)) ^^^ (v3 <<< 16)) ^^^ (v2 <<< 8)) ^^^ v1
+  end
+
+  defp swap_uint(<<v1 :: size(8)-unsigned-little-integer,
+                   v2 :: size(8)-unsigned-little-integer,
+                   v3 :: size(8)-unsigned-little-integer,
+                   v4 :: size(8)-unsigned-little-integer,
+                   v5 :: size(8)-unsigned-little-integer,
+                   v6 :: size(8)-unsigned-little-integer>>) do
+    (((((v6 <<< 40) ^^^ (v5 <<< 32)) ^^^ (v4 <<< 24)) ^^^ (v3 <<< 16)) ^^^ (v2 <<< 8)) ^^^ v1
+  end
+
+  defp swap_uint(<<v1 :: size(8)-unsigned-little-integer,
+                   v2 :: size(8)-unsigned-little-integer,
+                   v3 :: size(8)-unsigned-little-integer,
+                   v4 :: size(8)-unsigned-little-integer,
+                   v5 :: size(8)-unsigned-little-integer>>) do
+    ((((v5 <<< 32) ^^^ (v4 <<< 24)) ^^^ (v3 <<< 16)) ^^^ (v2 <<< 8)) ^^^ v1
+  end
+
+  defp swap_uint(<<v1 :: size(8)-unsigned-little-integer,
+                   v2 :: size(8)-unsigned-little-integer,
+                   v3 :: size(8)-unsigned-little-integer,
+                   v4 :: size(8)-unsigned-little-integer>>) do
+    (((v4 <<< 24) ^^^ (v3 <<< 16)) ^^^ (v2 <<< 8)) ^^^ v1
+  end
+  defp swap_uint(<<v1 :: size(8)-unsigned-little-integer,
+                   v2 :: size(8)-unsigned-little-integer,
+                   v3 :: size(8)-unsigned-little-integer>>) do
+    ((v3 <<< 16) ^^^ (v2 <<< 8)) ^^^ v1
+  end
+
+  defp swap_uint(<<v1 :: size(8)-unsigned-little-integer,
+                   v2 :: size(8)-unsigned-little-integer>>) do
+    (v2 <<< 8) ^^^ v1
+  end
+
+  defp swap_uint(<<v1 :: size(8)-unsigned-little-integer>>) do
+    0 ^^^ v1
+  end
+
+  defp swap_uint(""), do: 0
 
   @spec xorbsr(non_neg_integer, non_neg_integer) :: non_neg_integer
   defp xorbsr(h, v), do: h ^^^ (h >>> v)
