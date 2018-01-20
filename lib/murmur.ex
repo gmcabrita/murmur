@@ -20,28 +20,28 @@ defmodule Murmur do
 
   # murmur constants
 
-  @c1_32 0xcc9e2d51
-  @c2_32 0x1b873593
-  @n_32  0xe6546b64
+  @c1_32 0xCC9E2D51
+  @c2_32 0x1B873593
+  @n_32 0xE6546B64
 
-  @c1_32_128 0x239b961b
-  @c2_32_128 0xab0e9789
-  @c3_32_128 0x38b34ae5
-  @c4_32_128 0xa1e38b93
-  @n1_32_128 0x561ccd1b
-  @n2_32_128 0x0bcaa747
-  @n3_32_128 0x96cd1c35
-  @n4_32_128 0x32ac3b17
+  @c1_32_128 0x239B961B
+  @c2_32_128 0xAB0E9789
+  @c3_32_128 0x38B34AE5
+  @c4_32_128 0xA1E38B93
+  @n1_32_128 0x561CCD1B
+  @n2_32_128 0x0BCAA747
+  @n3_32_128 0x96CD1C35
+  @n4_32_128 0x32AC3B17
 
-  @c1_64_128 0x87c37b91114253d5
-  @c2_64_128 0x4cf5ad432745937f
-  @n1_64_128 0x52dce729
-  @n2_64_128 0x38495ab5
+  @c1_64_128 0x87C37B91114253D5
+  @c2_64_128 0x4CF5AD432745937F
+  @n1_64_128 0x52DCE729
+  @n2_64_128 0x38495AB5
 
   # since erlang/elixir integers are variable-length we have to guarantee them
   # to be 32 or 64 bit long
-  defmacrop mask_32(x), do: quote do: unquote(x) &&& 0xFFFFFFFF
-  defmacrop mask_64(x), do: quote do: unquote(x) &&& 0xFFFFFFFFFFFFFFFF
+  defmacrop mask_32(x), do: quote(do: unquote(x) &&& 0xFFFFFFFF)
+  defmacrop mask_64(x), do: quote(do: unquote(x) &&& 0xFFFFFFFFFFFFFFFF)
 
   @doc """
   Returns the hashed erlang term `data` using an optional `seed` which defaults to `0`.
@@ -50,6 +50,7 @@ defmodule Murmur do
   """
   @spec hash_x64_128(binary | term, non_neg_integer) :: non_neg_integer
   def hash_x64_128(data, seed \\ 0)
+
   def hash_x64_128(data, seed) when is_binary(data) do
     hashes =
       [seed, seed]
@@ -58,21 +59,23 @@ defmodule Murmur do
         {31, @c1_64_128, @c2_64_128},
         {33, @c2_64_128, @c1_64_128}
       ])
-      |> Stream.map(
-        fn ({x, {r, a, b}}) ->
-          case x do
-            {h, []} -> h ^^^ byte_size(data)
-            {h, t}  -> (h ^^^ (t
-                               |> swap_uint()
-                               |> Kernel.*(a)
-                               |> mask_64
-                               |> rotl64(r)
-                               |> Kernel.*(b)
-                               |> mask_64))
-                       ^^^ byte_size(data)
-          end
-        end)
-      |> Enum.to_list
+      |> Stream.map(fn {x, {r, a, b}} ->
+        case x do
+          {h, []} ->
+            h ^^^ byte_size(data)
+
+          {h, t} ->
+            h ^^^
+              (t
+               |> swap_uint()
+               |> Kernel.*(a)
+               |> mask_64
+               |> rotl64(r)
+               |> Kernel.*(b)
+               |> mask_64) ^^^ byte_size(data)
+        end
+      end)
+      |> Enum.to_list()
 
     [h1, h2] =
       hashes
@@ -94,6 +97,7 @@ defmodule Murmur do
   """
   @spec hash_x86_128(binary | term, non_neg_integer) :: non_neg_integer
   def hash_x86_128(data, seed \\ 0)
+
   def hash_x86_128(data, seed) when is_binary(data) do
     hashes =
       [seed, seed, seed, seed]
@@ -104,21 +108,23 @@ defmodule Murmur do
         {17, @c3_32_128, @c4_32_128},
         {18, @c4_32_128, @c1_32_128}
       ])
-      |> Stream.map(
-        fn ({x, {r, a, b}}) ->
-          case x do
-            {h, []} -> h ^^^ byte_size(data)
-            {h, t}  -> (h ^^^ (t
-                               |> swap_uint()
-                               |> Kernel.*(a)
-                               |> mask_32
-                               |> rotl32(r)
-                               |> Kernel.*(b)
-                               |> mask_32))
-                       ^^^ byte_size(data)
-          end
-        end)
-      |> Enum.to_list
+      |> Stream.map(fn {x, {r, a, b}} ->
+        case x do
+          {h, []} ->
+            h ^^^ byte_size(data)
+
+          {h, t} ->
+            h ^^^
+              (t
+               |> swap_uint()
+               |> Kernel.*(a)
+               |> mask_32
+               |> rotl32(r)
+               |> Kernel.*(b)
+               |> mask_32) ^^^ byte_size(data)
+        end
+      end)
+      |> Enum.to_list()
 
     [h1, h2, h3, h4] =
       hashes
@@ -140,17 +146,22 @@ defmodule Murmur do
   """
   @spec hash_x86_32(binary | term, non_neg_integer) :: non_neg_integer
   def hash_x86_32(data, seed \\ 0)
+
   def hash_x86_32(data, seed) when is_binary(data) do
     hash =
       case hash_32_aux(seed, data) do
-        {h, []} -> h
-        {h, t}  -> h ^^^ (t
-                          |> swap_uint()
-                          |> Kernel.*(@c1_32)
-                          |> mask_32
-                          |> rotl32(15)
-                          |> Kernel.*(@c2_32)
-                          |> mask_32)
+        {h, []} ->
+          h
+
+        {h, t} ->
+          h ^^^
+            (t
+             |> swap_uint()
+             |> Kernel.*(@c1_32)
+             |> mask_32
+             |> rotl32(15)
+             |> Kernel.*(@c2_32)
+             |> mask_32)
       end
 
     fmix32(hash ^^^ byte_size(data))
@@ -170,10 +181,12 @@ defmodule Murmur do
     [h1, h2]
   end
 
-  @spec k_64_op(non_neg_integer,
-                non_neg_integer,
-                non_neg_integer,
-                non_neg_integer) :: non_neg_integer
+  @spec k_64_op(
+          non_neg_integer,
+          5_545_529_020_109_919_103 | 9_782_798_678_568_883_157,
+          31 | 33,
+          5_545_529_020_109_919_103 | 9_782_798_678_568_883_157
+        ) :: non_neg_integer
   defp k_64_op(k, c1, rotl, c2) do
     k
     |> Kernel.*(c1)
@@ -184,12 +197,14 @@ defmodule Murmur do
     |> mask_64
   end
 
-  @spec h_64_op(non_neg_integer,
-                non_neg_integer,
-                non_neg_integer,
-                non_neg_integer,
-                non_neg_integer,
-                non_neg_integer) :: non_neg_integer
+  @spec h_64_op(
+          non_neg_integer,
+          non_neg_integer,
+          non_neg_integer,
+          non_neg_integer,
+          non_neg_integer,
+          non_neg_integer
+        ) :: non_neg_integer
   defp h_64_op(h1, k, rotl, h2, const, n) do
     h1
     |> Bitwise.^^^(k)
@@ -201,10 +216,10 @@ defmodule Murmur do
   end
 
   @spec hash_64_128_aux([non_neg_integer], binary) :: [{non_neg_integer, [binary]}]
-  defp hash_64_128_aux([h1, h2],
-                       <<k1::size(16) - little - unit(4),
-                         k2::size(16) - little - unit(4),
-                          t::binary>>) do
+  defp hash_64_128_aux(
+         [h1, h2],
+         <<k1::size(16)-little-unit(4), k2::size(16)-little-unit(4), t::binary>>
+       ) do
     k1 = k_64_op(k1, @c1_64_128, 31, @c2_64_128)
     h1 = h_64_op(h1, k1, 27, h2, 5, @n1_64_128)
 
@@ -214,7 +229,7 @@ defmodule Murmur do
     hash_64_128_aux([h1, h2], t)
   end
 
-  defp hash_64_128_aux([h1, h2], <<t1 :: size(8)-binary, t :: binary>>) do
+  defp hash_64_128_aux([h1, h2], <<t1::size(8)-binary, t::binary>>) do
     [{h1, t1}, {h2, t}]
   end
 
@@ -246,10 +261,12 @@ defmodule Murmur do
     [h1, h2, h3, h4]
   end
 
-  @spec k_32_op(non_neg_integer,
-                non_neg_integer,
-                non_neg_integer,
-                non_neg_integer) :: non_neg_integer
+  @spec k_32_op(
+          non_neg_integer(),
+          597_399_067 | 951_274_213 | 2_716_044_179 | 2_869_860_233 | 3_432_918_353,
+          15 | 16 | 17 | 18,
+          461_845_907 | 597_399_067 | 951_274_213 | 2_716_044_179 | 2_869_860_233
+        ) :: non_neg_integer
   defp k_32_op(k, c1, rotl, c2) do
     k
     |> Kernel.*(c1)
@@ -260,12 +277,14 @@ defmodule Murmur do
     |> mask_32
   end
 
-  @spec h_32_op(non_neg_integer,
-                non_neg_integer,
-                non_neg_integer,
-                non_neg_integer,
-                non_neg_integer,
-                non_neg_integer) :: non_neg_integer
+  @spec h_32_op(
+          non_neg_integer,
+          non_neg_integer,
+          non_neg_integer,
+          non_neg_integer,
+          non_neg_integer,
+          non_neg_integer
+        ) :: non_neg_integer
   defp h_32_op(h1, k, rotl, h2, const, n) do
     h1
     |> Bitwise.^^^(k)
@@ -277,12 +296,11 @@ defmodule Murmur do
   end
 
   @spec hash_32_128_aux([non_neg_integer], binary) :: [{non_neg_integer, [binary]}]
-  defp hash_32_128_aux([h1, h2, h3, h4],
-                       <<k1::size(8) - little - unit(4),
-                         k2::size(8) - little - unit(4),
-                         k3::size(8) - little - unit(4),
-                         k4::size(8) - little - unit(4),
-                          t::binary>>) do
+  defp hash_32_128_aux(
+         [h1, h2, h3, h4],
+         <<k1::size(8)-little-unit(4), k2::size(8)-little-unit(4), k3::size(8)-little-unit(4),
+           k4::size(8)-little-unit(4), t::binary>>
+       ) do
     k1 = k_32_op(k1, @c1_32_128, 15, @c2_32_128)
     h1 = h_32_op(h1, k1, 19, h2, 5, @n1_32_128)
 
@@ -298,23 +316,18 @@ defmodule Murmur do
     hash_32_128_aux([h1, h2, h3, h4], t)
   end
 
-  defp hash_32_128_aux([h1, h2, h3, h4],
-                       <<t1 :: size(4)-binary,
-                         t2 :: size(4)-binary,
-                         t3 :: size(4)-binary,
-                         t  :: binary>>) do
+  defp hash_32_128_aux(
+         [h1, h2, h3, h4],
+         <<t1::size(4)-binary, t2::size(4)-binary, t3::size(4)-binary, t::binary>>
+       ) do
     [{h1, t1}, {h2, t2}, {h3, t3}, {h4, t}]
   end
 
-  defp hash_32_128_aux([h1, h2, h3, h4],
-                       <<t1 :: size(4)-binary,
-                         t2 :: size(4)-binary,
-                         t3 :: binary>>) do
+  defp hash_32_128_aux([h1, h2, h3, h4], <<t1::size(4)-binary, t2::size(4)-binary, t3::binary>>) do
     [{h1, t1}, {h2, t2}, {h3, t3}, {h4, []}]
   end
 
-
-  defp hash_32_128_aux([h1, h2, h3, h4], <<t1 :: size(4)-binary, t2 :: binary>>) do
+  defp hash_32_128_aux([h1, h2, h3, h4], <<t1::size(4)-binary, t2::binary>>) do
     [{h1, t1}, {h2, t2}, {h3, []}, {h4, []}]
   end
 
@@ -329,7 +342,7 @@ defmodule Murmur do
   # x86_32 helper functions
 
   @spec hash_32_aux(non_neg_integer, binary) :: {non_neg_integer, [binary] | binary}
-  defp hash_32_aux(h0, <<k :: size(8)-little-unit(4), t :: binary>>) do
+  defp hash_32_aux(h0, <<k::size(8)-little-unit(4), t::binary>>) do
     k1 = k_32_op(k, @c1_32, 15, @c2_32)
 
     h0
@@ -350,16 +363,16 @@ defmodule Murmur do
   defp fmix32(h0) do
     h0
     |> xorbsr(16)
-    |> Kernel.*(0x85ebca6b)
+    |> Kernel.*(0x85EBCA6B)
     |> mask_32
     |> xorbsr(13)
-    |> Kernel.*(0xc2b2ae35)
+    |> Kernel.*(0xC2B2AE35)
     |> mask_32
     |> xorbsr(16)
   end
 
   @spec rotl32(non_neg_integer, non_neg_integer) :: non_neg_integer
-  defp rotl32(x, r), do: mask_32((x <<< r) ||| (x >>> (32 - r)))
+  defp rotl32(x, r), do: mask_32(x <<< r ||| x >>> (32 - r))
 
   # 64bit helper functions
 
@@ -367,45 +380,50 @@ defmodule Murmur do
   defp fmix64(h0) do
     h0
     |> xorbsr(33)
-    |> Kernel.*(0xff51afd7ed558ccd)
+    |> Kernel.*(0xFF51AFD7ED558CCD)
     |> mask_64
     |> xorbsr(33)
-    |> Kernel.*(0xc4ceb9fe1a85ec53)
+    |> Kernel.*(0xC4CEB9FE1A85EC53)
     |> mask_64
     |> xorbsr(33)
   end
 
   @spec rotl64(non_neg_integer, non_neg_integer) :: non_neg_integer
-  defp rotl64(x, r), do: mask_64((x <<< r) ||| (x >>> (64 - r)))
+  defp rotl64(x, r), do: mask_64(x <<< r ||| x >>> (64 - r))
 
   # generic helper functions
 
   @spec swap_uint(binary) :: non_neg_integer
-  defp swap_uint(<<v1::size(8), v2::size(8), v3::size(8), v4::size(8),
-                   v5::size(8), v6::size(8), v7::size(8), v8::size(8)>>) do
-    (((((((v8 <<< 56) ^^^ (v7 <<< 48)) ^^^ (v6 <<< 40)) ^^^ (v5 <<< 32)) ^^^ (v4 <<< 24)) ^^^ (v3 <<< 16)) ^^^ (v2 <<< 8)) ^^^ v1
+  defp swap_uint(
+         <<v1::size(8), v2::size(8), v3::size(8), v4::size(8), v5::size(8), v6::size(8),
+           v7::size(8), v8::size(8)>>
+       ) do
+    (v8 <<< 56) ^^^ (v7 <<< 48) ^^^ (v6 <<< 40) ^^^ (v5 <<< 32) ^^^ (v4 <<< 24) ^^^ (v3 <<< 16) ^^^
+      (v2 <<< 8) ^^^ v1
   end
 
-  defp swap_uint(<<v1::size(8), v2::size(8), v3::size(8), v4::size(8),
-                   v5::size(8), v6::size(8), v7::size(8)>>) do
-    ((((((v7 <<< 48) ^^^ (v6 <<< 40)) ^^^ (v5 <<< 32)) ^^^ (v4 <<< 24)) ^^^ (v3 <<< 16)) ^^^ (v2 <<< 8)) ^^^ v1
+  defp swap_uint(
+         <<v1::size(8), v2::size(8), v3::size(8), v4::size(8), v5::size(8), v6::size(8),
+           v7::size(8)>>
+       ) do
+    (v7 <<< 48) ^^^ (v6 <<< 40) ^^^ (v5 <<< 32) ^^^ (v4 <<< 24) ^^^ (v3 <<< 16) ^^^ (v2 <<< 8) ^^^
+      v1
   end
 
-  defp swap_uint(<<v1::size(8), v2::size(8), v3::size(8), v4::size(8),
-                   v5::size(8), v6::size(8)>>) do
-    (((((v6 <<< 40) ^^^ (v5 <<< 32)) ^^^ (v4 <<< 24)) ^^^ (v3 <<< 16)) ^^^ (v2 <<< 8)) ^^^ v1
+  defp swap_uint(<<v1::size(8), v2::size(8), v3::size(8), v4::size(8), v5::size(8), v6::size(8)>>) do
+    (v6 <<< 40) ^^^ (v5 <<< 32) ^^^ (v4 <<< 24) ^^^ (v3 <<< 16) ^^^ (v2 <<< 8) ^^^ v1
   end
 
-  defp swap_uint(<<v1::size(8), v2::size(8), v3::size(8), v4::size(8),
-                   v5::size(8)>>) do
-    ((((v5 <<< 32) ^^^ (v4 <<< 24)) ^^^ (v3 <<< 16)) ^^^ (v2 <<< 8)) ^^^ v1
+  defp swap_uint(<<v1::size(8), v2::size(8), v3::size(8), v4::size(8), v5::size(8)>>) do
+    (v5 <<< 32) ^^^ (v4 <<< 24) ^^^ (v3 <<< 16) ^^^ (v2 <<< 8) ^^^ v1
   end
 
   defp swap_uint(<<v1::size(8), v2::size(8), v3::size(8), v4::size(8)>>) do
-    (((v4 <<< 24) ^^^ (v3 <<< 16)) ^^^ (v2 <<< 8)) ^^^ v1
+    (v4 <<< 24) ^^^ (v3 <<< 16) ^^^ (v2 <<< 8) ^^^ v1
   end
+
   defp swap_uint(<<v1::size(8), v2::size(8), v3::size(8)>>) do
-    ((v3 <<< 16) ^^^ (v2 <<< 8)) ^^^ v1
+    (v3 <<< 16) ^^^ (v2 <<< 8) ^^^ v1
   end
 
   defp swap_uint(<<v1::size(8), v2::size(8)>>) do
