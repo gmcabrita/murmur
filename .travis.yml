@@ -3,7 +3,7 @@ matrix:
   include:
     - otp_release: '20.2'
       elixir: '1.6'
-    - otp_release: '17'
+    - otp_release: '17.5'
       elixir: '1.0'
 sudo: false
 before_script:
