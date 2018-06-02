@@ -14,7 +14,7 @@ defmodule Murmur.Mixfile do
       name: "Murmur",
       source_url: @github,
       homepage_url: nil,
-      version: "1.0.1-dev",
+      version: "1.0.2",
       elixir: "~> 1.6",
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
@@ -50,7 +50,7 @@ defmodule Murmur.Mixfile do
   defp deps() do
     [
       {:excoveralls, "~> 0.8", only: :docs, runtime: false},
-      {:ex_doc, "~> 0.16", only: :docs, runtime: false},
+      {:ex_doc, "~> 0.16", only: [:dev, :docs], runtime: false},
       {:dialyzex, "~> 1.1.2", only: [:dev, :test], runtime: false}
     ]
   end
