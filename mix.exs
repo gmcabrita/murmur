@@ -51,7 +51,6 @@ defmodule Murmur.Mixfile do
     [
       {:excoveralls, "~> 0.8", only: :docs, runtime: false},
       {:ex_doc, "~> 0.16", only: :docs, runtime: false},
-      {:inch_ex, "~> 0.5", only: :docs, runtime: false},
       {:dialyzex, "~> 1.1.2", only: [:dev, :test], runtime: false}
     ]
   end
