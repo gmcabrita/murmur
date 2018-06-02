@@ -5,17 +5,12 @@ otp_release:
   - '19.0'
   - '20.0'
 sudo: false
-cache:
-  directories:
-    - deps
-    - "/home/travis/.cache"
 before_script:
   - mix deps.get --only test
 script:
   - mix test
   - mix xref deprecated
   - mix xref unreachable
-  - travis_wait 30 mix dialyzer
   - mix format --check-formatted
 after_script:
   - mix deps.get --only docs
