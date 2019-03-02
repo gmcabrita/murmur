@@ -3,7 +3,7 @@ jobs:
   build:
     parallelism: 1
     docker:
-      - image: circleci/elixir:1.6
+      - image: circleci/elixir:1.8
         environment:
           MIX_ENV: test
     working_directory: ~/app
