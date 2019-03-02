@@ -30,8 +30,8 @@ jobs:
       - run: mix xref unreachable
       - run: mix test
       - run:
-        command: mix dialyzer
-        no_output_timeout: 30m
+          command: mix dialyzer
+          no_output_timeout: 30m
       - save_cache:
           key: v1-mix-cache-{{ .Branch }}-{{ checksum "mix.lock" }}
           paths: "deps"
