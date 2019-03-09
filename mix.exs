@@ -21,6 +21,10 @@ defmodule Murmur.Mixfile do
       description: @description,
       package: package(),
       deps: deps(),
+      aliases: aliases(),
+      preferred_cli_env: [
+        ci: :test
+      ],
       test_coverage: [tool: ExCoveralls],
       docs: docs(),
       dialyzer_ignored_warnings: [
@@ -55,6 +59,18 @@ defmodule Murmur.Mixfile do
       {:excoveralls, "~> 0.10", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.16", only: [:dev, :docs], runtime: false},
       {:dialyzex, "~> 1.2.0", only: [:dev, :test], runtime: false}
+    ]
+  end
+
+  defp aliases do
+    [
+      ci: [
+        "format --check-formatted",
+        "xref deprecated",
+        "xref unreachable",
+        "test",
+        "dialyzer"
+      ]
     ]
   end
 end
