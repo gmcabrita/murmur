@@ -1,7 +1,7 @@
 Murmur
 ======
 
-[![Build Status](https://img.shields.io/circleci/project/github/gmcabrita/murmur/master.svg)](https://circleci.com/gh/gmcabrita/murmur)
+[![Build Status](https://img.shields.io/github/workflow/status/gmcabrita/murmur/CI/master.svg)](https://github.com/gmcabrita/murmur/actions)
 [![Coverage Status](https://img.shields.io/coveralls/gmcabrita/murmur.svg?style=flat)](https://coveralls.io/r/gmcabrita/murmur?branch=master)
 [![Hex docs](http://img.shields.io/badge/hex.pm-docs-green.svg?style=flat)](https://hexdocs.pm/murmur)
 [![Hex Version](http://img.shields.io/hexpm/v/murmur.svg?style=flat)](https://hex.pm/packages/murmur)
