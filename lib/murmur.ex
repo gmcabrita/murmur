@@ -62,17 +62,20 @@ defmodule Murmur do
       |> Stream.map(fn {x, {r, a, b}} ->
         case x do
           {h, []} ->
-            h ^^^ byte_size(data)
+            bxor(h, byte_size(data))
 
           {h, t} ->
-            h ^^^
-              (t
-               |> swap_uint()
-               |> Kernel.*(a)
-               |> mask_64
-               |> rotl64(r)
-               |> Kernel.*(b)
-               |> mask_64) ^^^ byte_size(data)
+            h
+            |> bxor(
+              t
+              |> swap_uint()
+              |> Kernel.*(a)
+              |> mask_64
+              |> rotl64(r)
+              |> Kernel.*(b)
+              |> mask_64
+              |> bxor(byte_size(data))
+            )
         end
       end)
       |> Enum.to_list()
@@ -111,17 +114,20 @@ defmodule Murmur do
       |> Stream.map(fn {x, {r, a, b}} ->
         case x do
           {h, []} ->
-            h ^^^ byte_size(data)
+            bxor(h, byte_size(data))
 
           {h, t} ->
-            h ^^^
-              (t
-               |> swap_uint()
-               |> Kernel.*(a)
-               |> mask_32
-               |> rotl32(r)
-               |> Kernel.*(b)
-               |> mask_32) ^^^ byte_size(data)
+            h
+            |> bxor(
+              t
+              |> swap_uint()
+              |> Kernel.*(a)
+              |> mask_32
+              |> rotl32(r)
+              |> Kernel.*(b)
+              |> mask_32
+              |> bxor(byte_size(data))
+            )
         end
       end)
       |> Enum.to_list()
@@ -154,17 +160,21 @@ defmodule Murmur do
           h
 
         {h, t} ->
-          h ^^^
-            (t
-             |> swap_uint()
-             |> Kernel.*(@c1_32)
-             |> mask_32
-             |> rotl32(15)
-             |> Kernel.*(@c2_32)
-             |> mask_32)
+          h
+          |> bxor(
+            t
+            |> swap_uint()
+            |> Kernel.*(@c1_32)
+            |> mask_32
+            |> rotl32(15)
+            |> Kernel.*(@c2_32)
+            |> mask_32
+          )
       end
 
-    fmix32(hash ^^^ byte_size(data))
+    hash
+    |> bxor(byte_size(data))
+    |> fmix32()
   end
 
   def hash_x86_32(data, seed) do
@@ -207,7 +217,7 @@ defmodule Murmur do
         ) :: non_neg_integer
   defp h_64_op(h1, k, rotl, h2, const, n) do
     h1
-    |> Bitwise.^^^(k)
+    |> bxor(k)
     |> rotl64(rotl)
     |> Kernel.+(h2)
     |> Kernel.*(const)
@@ -287,7 +297,7 @@ defmodule Murmur do
         ) :: non_neg_integer
   defp h_32_op(h1, k, rotl, h2, const, n) do
     h1
-    |> Bitwise.^^^(k)
+    |> bxor(k)
     |> rotl32(rotl)
     |> Kernel.+(h2)
     |> Kernel.*(const)
@@ -346,7 +356,7 @@ defmodule Murmur do
     k1 = k_32_op(k, @c1_32, 15, @c2_32)
 
     h0
-    |> Bitwise.^^^(k1)
+    |> bxor(k1)
     |> rotl32(13)
     |> Kernel.*(5)
     |> Kernel.+(@n_32)
@@ -398,44 +408,67 @@ defmodule Murmur do
          <<v1::size(8), v2::size(8), v3::size(8), v4::size(8), v5::size(8), v6::size(8),
            v7::size(8), v8::size(8)>>
        ) do
-    (v8 <<< 56) ^^^ (v7 <<< 48) ^^^ (v6 <<< 40) ^^^ (v5 <<< 32) ^^^ (v4 <<< 24) ^^^ (v3 <<< 16) ^^^
-      (v2 <<< 8) ^^^ v1
+    v8 <<< 56
+    |> bxor(v7 <<< 48)
+    |> bxor(v6 <<< 40)
+    |> bxor(v5 <<< 32)
+    |> bxor(v4 <<< 24)
+    |> bxor(v3 <<< 16)
+    |> bxor(v2 <<< 8)
+    |> bxor(v1)
   end
 
   defp swap_uint(
          <<v1::size(8), v2::size(8), v3::size(8), v4::size(8), v5::size(8), v6::size(8),
            v7::size(8)>>
        ) do
-    (v7 <<< 48) ^^^ (v6 <<< 40) ^^^ (v5 <<< 32) ^^^ (v4 <<< 24) ^^^ (v3 <<< 16) ^^^ (v2 <<< 8) ^^^
-      v1
+    v7 <<< 48
+    |> bxor(v6 <<< 40)
+    |> bxor(v5 <<< 32)
+    |> bxor(v4 <<< 24)
+    |> bxor(v3 <<< 16)
+    |> bxor(v2 <<< 8)
+    |> bxor(v1)
   end
 
   defp swap_uint(<<v1::size(8), v2::size(8), v3::size(8), v4::size(8), v5::size(8), v6::size(8)>>) do
-    (v6 <<< 40) ^^^ (v5 <<< 32) ^^^ (v4 <<< 24) ^^^ (v3 <<< 16) ^^^ (v2 <<< 8) ^^^ v1
+    v6 <<< 40
+    |> bxor(v5 <<< 32)
+    |> bxor(v4 <<< 24)
+    |> bxor(v3 <<< 16)
+    |> bxor(v2 <<< 8)
+    |> bxor(v1)
   end
 
   defp swap_uint(<<v1::size(8), v2::size(8), v3::size(8), v4::size(8), v5::size(8)>>) do
-    (v5 <<< 32) ^^^ (v4 <<< 24) ^^^ (v3 <<< 16) ^^^ (v2 <<< 8) ^^^ v1
+    v5 <<< 32
+    |> bxor(v4 <<< 24)
+    |> bxor(v3 <<< 16)
+    |> bxor(v2 <<< 8)
+    |> bxor(v1)
   end
 
   defp swap_uint(<<v1::size(8), v2::size(8), v3::size(8), v4::size(8)>>) do
-    (v4 <<< 24) ^^^ (v3 <<< 16) ^^^ (v2 <<< 8) ^^^ v1
+    v4 <<< 24
+    |> bxor(v3 <<< 16)
+    |> bxor(v2 <<< 8)
+    |> bxor(v1)
   end
 
   defp swap_uint(<<v1::size(8), v2::size(8), v3::size(8)>>) do
-    (v3 <<< 16) ^^^ (v2 <<< 8) ^^^ v1
+    v3 <<< 16
+    |> bxor(v2 <<< 8)
+    |> bxor(v1)
   end
 
   defp swap_uint(<<v1::size(8), v2::size(8)>>) do
-    (v2 <<< 8) ^^^ v1
+    v2 <<< 8 |> bxor(v1)
   end
 
-  defp swap_uint(<<v1::size(8)>>) do
-    0 ^^^ v1
-  end
+  defp swap_uint(<<v1::size(8)>>), do: 0 |> bxor(v1)
 
   defp swap_uint(""), do: 0
 
   @spec xorbsr(non_neg_integer, non_neg_integer) :: non_neg_integer
-  defp xorbsr(h, v), do: h ^^^ (h >>> v)
+  defp xorbsr(h, v), do: h |> bxor(h >>> v)
 end
